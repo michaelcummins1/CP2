@@ -25,7 +25,6 @@ def _cons{
     div bl
     mov byte c_bet, al
     ret
-    
 }
 
 def _norm{
