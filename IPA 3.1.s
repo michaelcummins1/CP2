@@ -1,3 +1,9 @@
+; CS 274
+; IPA 3.1
+;
+; @author: Isabelle Son
+; @purpose: Creating the framework for representing cards, bets and wins on screen
+
 cards:
     ; Hearts 1-13
     db 0x01 db 0x02 db 0x03 db 0x04 db 0x05 db 0x06 db 0x07 
@@ -23,10 +29,10 @@ player_wins: db "Player wins: 0"    ; implement later
 comp_wins: db "Computer wins: 0"    ; implement later
 
 player_bet: dw 0
-; comp_bet: dw 0        ; implement later
+comp_bet: dw 0        ; implement later
 
-; player_num_wins: db 0      ; implement later
-; comp_num_wins: db 0        ; implement later
+player_num_wins: db 0      ; implement later
+comp_num_wins: db 0        ; implement later
 
 buffer:
     ; create a buffer for input
@@ -34,7 +40,9 @@ buffer:
     db 0x00     ; actual value read after INT
     db [0x00, 0x04]     ; buffer of the right size
 
-to_print: db [0x00, 0xff]
+player_bet_to_print: db [0x00, 0x0a]
+
+cards_to_print: db [0x00, 0xff]
 
 def _char_to_num {
     ; converts all chars to number, moves backwards
@@ -138,7 +146,7 @@ _invalid_bet:
     
 _cards:
     ; prepare cards for print
-    mov ax, 0x0000
+    mov ax, 0x00
     mov si, OFFSET bet_prompt       ; find end of cards, change appropriately
     dec si
     
@@ -182,7 +190,7 @@ _num_to_char_loop:
     jmp _card_loop
     
 _print:
-    mov si, OFFSET to_print
+    mov si, OFFSET cards_to_print
     
 _print_loop:
     ; takes from stack and sets up for print
@@ -203,6 +211,7 @@ _print_stats:
     mov dl, 0
     int 0x10
     mov ax, word player_bet
+    mov si, OFFSET player_bet_to_print
     
 _bet_to_char_loop:
     call _num_to_char
@@ -210,12 +219,22 @@ _bet_to_char_loop:
     jg _bet_to_char_loop
     
 _bet_print_loop:
+    ; prepares player bet to print
     cmp sp, 0x0000      ; check for empty stack
     jnl _comp_money
     pop ax
     mov word [si], ax
     inc si
     jmp _bet_print_loop
+    
+    ; print player bet val
+    mov ah, 0x13
+    mov cx, 0x0a        ; length of string to be printed
+    mov bx, 0
+    mov es, bx
+    mov bp, OFFSET player_bet_to_print
+    mov dl, 0
+    int 0x10
     
 _comp_money:
     ; print computer money
@@ -250,6 +269,6 @@ _print_cards:
     mov cx, 0xff        ; length of string to be printed
     mov bx, 0
     mov es, bx
-    mov bp, OFFSET to_print
+    mov bp, OFFSET cards_to_print
     mov dl, 0
     int 0x10
