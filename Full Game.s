@@ -584,8 +584,14 @@ _player_turn:
     sub al, 0x30
     mov byte player_h_s, al
     
-    ; * jump to _computer_turn if 0
-    ; * jump to _exit_turn if 2
+    ; jump to _computer_turn if 0
+    cmp byte player_h_s, 0x00
+    je _computer_turn
+    
+    ; jump to _exit_turn if 2
+    cmp byte player_h_s, 0x02
+    je _exit_turn
+    
     ; * add card to players card
     ; * add value to player_card_val
     ; * add to player_cards_to_print
@@ -817,32 +823,70 @@ _c_clear_cards:
     jmp _c_clear_cards
     
 _c_exit_clear_cards:
-    ; * if comp_card_val > 21, jump to _player_win
-    ; * if comp_card_val = 21, jump to _comp_win
-    ; * jump to _turn_loop
+    ; if comp_card_val > 21, jump to _player_win
+    ; if comp_card_val = 21, jump to _comp_win
+    cmp byte comp_card_val, 0x15
+    jg _player_win
+    je _comp_win
+    
+    ; jump to _turn_loop
+    jmp _turn_loop
     
 __check_both_stay:
-    ; * if both player_h_s and comp_h_s are 0, jump to _cmp_vals
-    ; * jump to _turn_loop
+    ; if both player_h_s and comp_h_s are 0, jump to _cmp_vals
+    cmp byte player_h_s, 0x00
+    jne _exit_check_both_stay
+    cmp byte comp_h_s, 0x00
+    je _cmp_vals
+    
+_exit_check_both_stay:
+    ; jump to _turn_loop
+    jmp _turn_loop
     
 
 _cmp_vals:
-    ; * if player_card_val > comp_card_val, jump to _player_win
-    ; * if comp_card_val > player_card_val, jump to _comp_win
-    ; * if equal, jump to _exit_turn
-    
+    ; if player_card_val > comp_card_val, jump to _player_win
+    ; if comp_card_val > player_card_val, jump to _comp_win
+    ; if equal, jump to _exit_turn
+    mov al, byte comp_card_val
+    cmp byte player_card_val, al
+    jg _player_win
+    jl _comp_win
+    je _exit_turn
 
 _player_win:
-    ; * increase player_wins
-    ; * subtract comp_bet from comp_funds
-    ; * add comp_bet to player_funds
-    ; * jump to _exit_turn
+    ; increment player_wins
+    inc byte player_wins
+    
+    ; subtract comp_bet from comp_funds
+    mov ax, word comp_funds
+    sub ax, word comp_bet
+    mov word comp_funds, ax
+    
+    ; add comp_bet to player_funds
+    mov ax, word player_funds
+    add ax, word comp_bet
+    mov word player_funds, ax
+    
+    ; jump to _exit_turn
+    jmp _exit_turn
     
 _comp_win:
-    ; * increase comp_wins
-    ; * subtract player_bet from player_funds
-    ; * add player_bet to comp_funds
-    ; * jump to _exit_turn
+    ; increment comp_wins
+    inc byte comp_wins
+    
+    ; subtract player_bet from player_funds
+    mov ax, word player_funds
+    sub ax, word player_bet
+    mov word player_funds, ax
+    
+    ; add player_bet to comp_funds
+    mov ax, word comp_funds
+    add ax, word player_bet
+    mov word comp_funds, ax
+    
+    ; jump to _exit_turn
+    jmp _exit_turn
 
 _exit_turn:
     ; print winnings and funds
@@ -1066,14 +1110,18 @@ _fc_exit_clear_funds:
     int 0x21
     
     ; subtract 0x30 from val in continue_buffer
-    mov si, OFFSET h_s_buffer
+    mov si, OFFSET continue_buffer
     add si, 0x02
     mov al, byte [si]
     sub al, 0x30
     
-    ; * val in al
-    ; * if 1, jmp to round_loop
-    ; * if 0, end game
+    ; val in al
+    ; if 1, jmp to _round_loop
+    ; if 0, _end_game
+    cmp al, 0x01
+    je _round_loop
+    cmp al, 0x00
+    je _end_game
     
 _check_all_cards_used:
     ; * checks decks to see if all cards have been used
@@ -1108,7 +1156,11 @@ _final_comp_win:
     jmp _end_prog
 
 _end_game:
-    ; * compare accumulated wins
-    ; * jump to either _final_player_win or _final_comp_win
+    ; compare accumulated wins
+    ; jump to either _final_player_win or _final_comp_win
+    mov byte comp_num_wins, al
+    cmp byte player_num_wins, al
+    jg _final_player_win
+    jl _final_comp_win
     
 _end_prog:
