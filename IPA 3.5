@@ -19,8 +19,8 @@ start:
     mov bl, byte c_sum
     mov al, 0x15
     sub al, bl
-    cmp al, 0x04
-    jle _stand
+    cmp al, 0x05
+    jl _stand
     jmp _add
 _stand:
     ; Keep cards the same and continue through the turn to turn evaluation
