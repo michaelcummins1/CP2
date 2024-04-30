@@ -123,7 +123,7 @@ def _comp_bet {
     ; * normal - ret user bet
     ; * aggressive - outmatch bet by 30%
 
-    ; * store result in al
+    ; * store result in ax
     ret
 }
 
@@ -332,19 +332,19 @@ _invalid_bet:
     
 _valid_bet:
     call _comp_bet
-    ; bet stored in al
+    ; bet stored in ax
     
     ; check if comp_funds > comp_bet,
     ; if not, move all funds to bet
-    cmp word comp_funds, al
+    cmp word comp_funds, ax
     jle _bet_all_funds
     jmp _set_bet
     
 _bet_all_funds:
-    mov al, comp_funds
+    mov ax, word comp_funds
     
 _set_bet:
-    mov word comp_bet, al
+    mov word comp_bet, ax
     
     ; * implement random card choosing
     ; * 1 card to player, 1 card to computer
