@@ -122,6 +122,8 @@ def _comp_bet {
     ; * conservative - under-bet by 20%
     ; * normal - ret user bet
     ; * aggressive - outmatch bet by 30%
+
+    ; * store result in al
     ret
 }
 
@@ -267,8 +269,13 @@ _exit_fund_loop:
 _round_loop:
     ; actions performed every round
     ; check funds:
-    ; * if comp_funds insufficient, jump to _final_player_win
-    ; * if player_funds insufficient, jump to _final_comp_win
+    ; if comp_funds insufficient, jump to _final_player_win
+    cmp word comp_funds, 0x00
+    jle _final_player_win
+    
+    ; if player_funds insufficient, jump to _final_comp_win
+    cmp word player_funds, 0x00
+    jle _final_comp_win
     
     ; print bet_prompt and store in buffer
     mov ah, 0x13
@@ -325,8 +332,19 @@ _invalid_bet:
     
 _valid_bet:
     call _comp_bet
-    ; * check if comp_funds > comp_bet,
-    ; * if not, move all funds to bet
+    ; bet stored in al
+    
+    ; check if comp_funds > comp_bet,
+    ; if not, move all funds to bet
+    cmp word comp_funds, al
+    jle _bet_all_funds
+    jmp _set_bet
+    
+_bet_all_funds:
+    mov al, comp_funds
+    
+_set_bet:
+    mov word comp_bet, al
     
     ; * implement random card choosing
     ; * 1 card to player, 1 card to computer
