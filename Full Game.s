@@ -297,14 +297,31 @@ _exit_fund_loop:
     sub al, 0x30
     mov byte difficulty, al
     
+    ; based on difficulty, assign value to comp_funds
+    ; easy - 50% of player funds
+    ; normal - 100% of player funds
+    ; hard - 150% of player funds
+    cmp al, 0x02
+    je _normal
+    jl _easy
+    jg _hard
+
+_normal:
+    mov word comp_funds, word player_funds
+    jmp _round_loop
     
-    ; * based on difficulty, assign value to comp_funds
-    ; * easy - 50% of player funds
-    ; * normal - 100% of player funds
-    ; * hard - 150% of player funds
-    
-    ; * move val to comp_funds
-    
+_easy:
+    mov ax, word player_funds
+    div 0x02
+    mov word comp_funds, ax
+    jmp _round_loop
+
+_hard:
+    mov ax, word player_funds
+    mul 0x03
+    div 0x02
+    mov comp_funds, ax
+    jmp _round_loop
     
 _round_loop:
     ; actions performed every round
