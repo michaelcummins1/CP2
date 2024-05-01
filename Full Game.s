@@ -311,20 +311,24 @@ _exit_fund_loop:
     jg _hard
 
 _normal:
-    mov word comp_funds, word player_funds
+    mov ax, word player_funds
+    mov word comp_funds, ax
     jmp _round_loop
     
 _easy:
     mov ax, word player_funds
-    div 0x02
+    mov bl, 0x02
+    div bl
     mov word comp_funds, ax
     jmp _round_loop
 
 _hard:
     mov ax, word player_funds
-    mul 0x03
-    div 0x02
-    mov comp_funds, ax
+    mov bl, 0x03
+    mul bl
+    mov bl, 0x02
+    div bl
+    mov word comp_funds, ax
     jmp _round_loop
     
 _round_loop:
