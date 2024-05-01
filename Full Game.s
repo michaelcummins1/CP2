@@ -273,8 +273,6 @@ _exit_fund_loop:
     mov word player_funds, cx
     
     
-    ; * computer risk level?
-    
     ; print difficulty prompt
     mov ah, 0x13
     mov cx, 0x24        ; length of string to be printed
