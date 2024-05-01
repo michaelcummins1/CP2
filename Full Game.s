@@ -1,5 +1,5 @@
 ; CS 274
-; IPA 3.4
+; CP2
 ;
 ; @author: Michael Cummins Isabelle Son
 ; @purpose: Finalize the game
@@ -115,15 +115,55 @@ comp_funds_to_print: db [0x00, 0x0a]
 player_cards_to_print: db [0x00, 0x15]  ; 21 spaces, can at most be A+2+3+4+5+6 before loss/win
 comp_cards_to_print: db [0x00, 0x15]
 
+def _cons{
+    ; 20% smaller computer bet
+    mov al, byte player_bet
+    mov bl, 0x04
+    mul bl
+    mov bl, 0x05
+    div bl
+    mov byte comp_bet, al
+    ret
+}
+
+def _norm{
+    ; Equal computer bet
+    mov al,  byte player_bet
+    mov byte comp_bet, al
+    ret
+}
+
+def _aggr{
+    ; 30% larger computer bet
+    mov al, byte player_bet
+    mov bl, 0x0d
+    mul bl
+    mov bl, 0x0a
+    div bl
+    mov byte comp_bet, al
+    ret
+}
+
 def _comp_bet {
-
-    ; * how to decide?
-    
-    ; * conservative - under-bet by 20%
-    ; * normal - ret user bet
-    ; * aggressive - outmatch bet by 30%
-
-    ; * store result in ax
+    ; Determines computer's bet
+    ; Elect what betting mode the computer has in the comp_bet_mode above
+    ; Stores bet in ax
+    mov al, byte player_bet
+    mov bl, byte comp_bet
+    cmp byte comp_bet_mode, 0x01
+    jl _call_cons
+    je _call_norm
+    jg _call_aggr
+_call_cons:
+    call _cons
+    jmp _continue
+_call_norm:
+    call _norm
+    jmp _continue
+_call_aggr:
+    call _aggr
+    jmp _continue
+_continue:
     ret
 }
 
