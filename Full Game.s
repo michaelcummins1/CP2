@@ -65,6 +65,12 @@ comp_funds: dw 0
 player_bet: dw 0
 comp_bet: dw 0
 
+; edit betting mode here
+; 0 --> conservative
+; 1 --> normal
+; 2 --> aggressive
+comp_bet_mode: db 1
+
 ; accumulated card values
 player_card_val: db 0
 comp_card_val: db 0
