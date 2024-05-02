@@ -1215,14 +1215,17 @@ _all_cards_used:
     je _end_game
     
 _all_cards_player_win:
-    inc player_num_wins
+    mov al, byte player_num_wins
+    inc al
+    mov byte player_num_wins, al
     jmp _end_game
 
 _all_cards_comp_win:
-    inc comp_num_wins
+    mov al, byte comp_num_wins
+    inc al
+    mov byte comp_num_wins, al
     jmp _end_game
     
-
 _final_player_win:
     ; print player_win message
     mov ah, 0x13
