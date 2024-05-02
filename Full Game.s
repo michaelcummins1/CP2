@@ -411,12 +411,6 @@ _bet_all_funds:
 _set_bet:
     mov word comp_bet, ax
     
-    ; * implement random card choosing
-    ; * 1 card to player, 1 card to computer
-    ; add cards to player_card_codes and comp_card_codes ->
-    ; loop will add to respective "to_prints" along with suits
-    ; add card values to player_card_val and computer_card_val
-    
 ; set up player card assignment + print
 _sp_cards:
     ; prepare cards for print
@@ -670,10 +664,6 @@ _player_turn:
     ; jump to _exit_turn if 2
     cmp byte player_h_s, 0x02
     je _exit_turn
-    
-    ; * add card to players card
-    ; * add value to player_card_val
-    ; * add to player_cards_to_print
     
     ; print current cards
 ; player card assignment + print
