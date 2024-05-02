@@ -781,7 +781,7 @@ _stand:
 _fold:
     jmp _player_win
 _add:
-    ; * Redo lehmer algorithm to compute another card for the computer
+    ; Redo lehmer algorithm to compute another card for the computer
     call _lehmer_algo   ; compute random number
     mov si, OFFSET decks ; load array of used cards
     add si, dx
