@@ -1189,10 +1189,39 @@ _fc_exit_clear_funds:
     je _end_game
     
 _check_all_cards_used:
-    ; * checks decks to see if all cards have been used
-    ; * if yes, compare player_card_val and comp_card_val to see who won
-    ; * increment wins and handle funds accordingly
-    ; * jump to either _final_player_win or _final_comp_win
+    ; checks decks to see if all cards have been used
+    ; if yes, compare player_card_val and comp_card_val to see who won
+    ; increment wins accordingly
+    ; jump to _end_game
+    
+    mov si, OFFSET decks
+    mov di, si
+    add di, 0x33        ; move to last position in decks for loop termination
+    
+_check_cards_loop:
+    mov al, byte [si]
+    cmp al, byte num_decks
+    jl _end_game
+    cmp si, di
+    jge _all_cards_used
+    inc si
+    jmp _check_cards_loop
+    
+_all_cards_used:
+    mov al, byte player_card_val
+    cmp al, byte comp_card_val
+    jl _all_cards_comp_win
+    jg _all_cards_player_win
+    je _end_game
+    
+_all_cards_player_win:
+    inc player_num_wins
+    jmp _end_game
+
+_all_cards_comp_win:
+    inc comp_num_wins
+    jmp _end_game
+    
 
 _final_player_win:
     ; print player_win message
