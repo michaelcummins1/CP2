@@ -622,7 +622,21 @@ _loop_select:
     jge _loop_select  ; reselect if used too many times
     inc al            ; increment number of uses
     mov byte[si], al
-    ; *need to change below to put the cards where they need to be
+    cmp di, 0x02
+    jl _p_card
+    jge _c_card
+_p_card:
+    mov si, OFFSET player_card_codes
+    add si, di
+    mov byte [si], dl
+    jmp _card_continue
+_c_card:
+    mov si, OFFSET comp_card_codes
+    mov ax, di
+    sub ax, 0x02
+    add si, ax
+    mov byte [si], dl
+_card_continue:
     inc di
     jmp _loop_select
     
